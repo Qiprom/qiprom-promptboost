@@ -1,1 +1,30 @@
-<!doctype html><meta charset="utf-8"><title>qiprom</title><body>it works</body>
+<!doctype html><meta charset="utf-8"><title>Qiprom – SWOT-Boost</title>
+<body>
+  <h1>Qiprom – SWOT-Boost</h1>
+  <input id="license" placeholder="Lizenzcode" />
+  <textarea id="input" rows="6" placeholder="Beschreibe kurz dein Vorhaben..."></textarea>
+  <button id="run">Boost ausführen</button>
+  <div id="status"></div>
+  <pre id="out"></pre>
+<script>
+document.getElementById('run').onclick = async () => {
+  const token = document.getElementById('license').value.trim();
+  const input = document.getElementById('input').value.trim();
+  const r = await fetch('/api/run', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer '+token
+    },
+    body: JSON.stringify({ input })
+  });
+  const j = await r.json();
+  document.getElementById('out').textContent = (j.output || j.error || '');
+  if (typeof j.uses_remaining === 'number') {
+    document.getElementById('status').textContent = `Verbleibende Nutzungen: ${j.uses_remaining}`;
+  } else {
+    document.getElementById('status').textContent = '';
+  }
+};
+</script>
+</body>
