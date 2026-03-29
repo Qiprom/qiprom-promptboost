@@ -1,0 +1,42 @@
+<!doctype html><meta charset="utf-8"><title>Qiprom – Boost MVP</title>
+<body style="font-family: system-ui; max-width: 720px; margin: 40px auto; line-height:1.5">
+  <h1>Qiprom – Boost MVP</h1>
+  <label>Lizenzcode</label><br>
+  <input id="license" placeholder="z.B. TEST123" style="width:100%;padding:8px"><br><br>
+
+  <label>Boost</label><br>
+  <select id="boost" style="width:100%;padding:8px">
+    <option value="swot_v1">SWOT Navigator</option>
+  </select><br><br>
+
+  <label>Dein Input</label><br>
+  <textarea id="input" rows="6" placeholder="Beschreibe kurz dein Vorhaben..." style="width:100%;padding:8px"></textarea><br><br>
+
+  <button id="run" style="padding:10px 16px">Boost ausführen</button>
+  <span id="status" style="margin-left:10px;color:#666"></span>
+
+  <pre id="out" style="background:#f8f8f8;padding:12px;white-space:pre-wrap;margin-top:16px"></pre>
+
+  <script>
+    document.getElementById('run').onclick = async () => {
+      const token = document.getElementById('license').value.trim();
+      const boost = document.getElementById('boost').value;
+      const input = document.getElementById('input').value.trim();
+      document.getElementById('status').textContent = 'läuft…';
+      document.getElementById('out').textContent = '';
+
+      const r = await fetch('/api/run', {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer '+token
+        },
+        body: JSON.stringify({ boost_key: boost, input })
+      });
+      const j = await r.json().catch(()=>({error:'Bad JSON'}));
+      document.getElementById('status').textContent =
+        typeof j.uses_remaining === 'number' ? `Verbleibende Nutzungen: ${j.uses_remaining}` : '';
+      document.getElementById('out').textContent = j.output || j.error || '(keine Antwort)';
+    };
+  </script>
+</body>
